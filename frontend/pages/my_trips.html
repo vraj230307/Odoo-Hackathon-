@@ -53,14 +53,20 @@
           document.getElementById("emptyState").style.display = "none";
           document.getElementById("tripCount").textContent = `${res.data.length} trip(s)`;
           const grid = document.getElementById("tripsGrid");
+          const tripDetails = JSON.parse(localStorage.getItem("tripDetails") || "{}");
           res.data.forEach(trip => {
+            const details = tripDetails[trip.id] || {};
             const card = document.createElement("div");
             card.className = "trip-card";
             card.innerHTML = `
-              <h3>${trip.name || trip.destination || "Unnamed Trip"}</h3>
-              <div class="trip-dates">${trip.start_date || ""} ${trip.end_date ? "→ " + trip.end_date : ""}</div>
-              <div style="display:flex;gap:8px;margin-top:12px;">
-                <span class="trip-tag">${trip.destination || ""}</span>
+              <h3>${details.name || trip.destination || "My Trip"}</h3>
+              <div class="trip-dates">
+                ${details.start_date ? "📅 " + details.start_date : ""}
+                ${details.end_date ? "→ " + details.end_date : ""}
+              </div>
+              ${details.description ? `<p style="color:var(--text-muted);font-size:14px;margin:8px 0;">${details.description}</p>` : ""}
+              <div style="display:flex;gap:8px;margin-top:8px;">
+                <span class="trip-tag">${details.destination || trip.destination || ""}</span>
               </div>
               <div style="display:flex;gap:8px;margin-top:14px;">
                 <button onclick="deleteTrip(${trip.id})" style="background:var(--danger);color:white;padding:6px 14px;border-radius:var(--radius);font-size:13px;">Delete</button>

@@ -6,15 +6,19 @@ trip_routes = Blueprint('trip_routes', __name__)
 @trip_routes.route('/trips', methods=['GET'])
 def get_trips():
     try:
-        # Get user_id from query param or header
         user_id = request.args.get('user_id')
-        
         if user_id:
             trips = Trip.query.filter_by(user_id=int(user_id)).all()
         else:
             trips = Trip.query.all()
-            
-        data = [{"id": t.id, "destination": t.destination, "created_at": str(t.created_at)} for t in trips]
+
+        data = []
+        for t in trips:
+            data.append({
+                "id": t.id,
+                "destination": t.destination,
+                "created_at": str(t.created_at)
+            })
         return jsonify({"success": True, "message": "Fetched all trips successfully", "data": data}), 200
     except Exception as e:
         return jsonify({"success": False, "message": str(e), "data": []}), 500
@@ -28,17 +32,7 @@ def create_trip():
         trip = Trip(user_id=user_id, destination=destination)
         db.session.add(trip)
         db.session.commit()
-        return jsonify({"success": True, "message": "Trip created successfully", "data": {"id": trip.id}}), 201
-    except Exception as e:
-        return jsonify({"success": False, "message": str(e), "data": []}), 500
-
-@trip_routes.route('/trip/<int:trip_id>', methods=['GET'])
-def get_trip(trip_id):
-    try:
-        trip = Trip.query.get(trip_id)
-        if not trip:
-            return jsonify({"success": False, "message": "Trip not found", "data": []}), 404
-        return jsonify({"success": True, "message": "Fetched", "data": {"id": trip.id, "destination": trip.destination}}), 200
+        return jsonify({"success": True, "message": "Trip created!", "data": {"id": trip.id}}), 201
     except Exception as e:
         return jsonify({"success": False, "message": str(e), "data": []}), 500
 

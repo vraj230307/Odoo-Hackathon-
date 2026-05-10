@@ -96,11 +96,11 @@
       });
 
       if (res.success) {
+        const tripDetails = JSON.parse(localStorage.getItem("tripDetails") || "{}");
+        tripDetails[res.data.id] = { name, destination, start_date, end_date, description };
+        localStorage.setItem("tripDetails", JSON.stringify(tripDetails));
         document.getElementById("successMsg").style.display = "block";
         setTimeout(() => window.location.href = "/pages/my_trips.html", 1500);
-      } else {
-        document.getElementById("errorBox").textContent = res.message;
-        document.getElementById("errorBox").classList.add("show");
       }
     }
   </script>

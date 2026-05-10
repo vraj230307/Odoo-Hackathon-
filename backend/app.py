@@ -70,6 +70,22 @@ def create_app():
     def server_error(e):
         db.session.rollback()
         return jsonify({"success": False, "message": "Server error", "data": []}), 500
+    
+    # Auto-seed cities database on startup
+    import sqlite3, os
+    db_path = os.path.join(os.path.dirname(__file__), 'database.db')
+    schema_path = os.path.join(os.path.dirname(__file__), '..', 'database', 'schema.sql')
+    if os.path.exists(schema_path):
+        conn = sqlite3.connect(db_path)
+        try:
+            count = conn.execute("SELECT COUNT(*) FROM cities").fetchone()[0]
+            if count == 0:
+                with open(schema_path, 'r', encoding='utf-8') as f:
+                    conn.executescript(f.read())
+        except:
+            with open(schema_path, 'r', encoding='utf-8') as f:
+                conn.executescript(f.read())
+        conn.close()
 
     return app
 

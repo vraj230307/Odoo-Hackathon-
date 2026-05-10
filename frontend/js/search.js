@@ -7,7 +7,9 @@
 /* ══════════════════════════════════════════════
    CONFIG
 ══════════════════════════════════════════════ */
-const API_BASE = window.API_BASE || 'http://localhost:5000';
+const API_BASE = window.location.hostname === "127.0.0.1"
+  ? "http://127.0.0.1:5000"
+  : "";
 
 const ENDPOINTS = {
   cities:     `${API_BASE}/api/cities`,

@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Traveloop{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="https://unpkg.com/feather-icons"></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}" defer></script>
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+    <div class="bg-glow-1"></div>
+    <div class="bg-glow-2"></div>
+
+    <aside class="sidebar">
+        <div class="brand">
+            <i data-feather="compass"></i> Traveloop
+        </div>
+        <ul class="nav-links">
+            <li><a href="/" {% if request.path == '/' %}class="active"{% endif %}><i data-feather="home"></i> Dashboard</a></li>
+            <li><a href="/ui/packing" {% if 'packing' in request.path %}class="active"{% endif %}><i data-feather="check-square"></i> Packing Checklist</a></li>
+            <li><a href="/ui/notes" {% if 'notes' in request.path %}class="active"{% endif %}><i data-feather="book-open"></i> Trip Notes</a></li>
+            <li><a href="/ui/profile" {% if 'profile' in request.path %}class="active"{% endif %}><i data-feather="user"></i> Profile Settings</a></li>
+            <li><a href="/ui/admin" {% if 'admin' in request.path %}class="active"{% endif %}><i data-feather="pie-chart"></i> Admin Analytics</a></li>
+        </ul>
+    </aside>
+
+    <main class="main-content">
+        {% block content %}{% endblock %}
+    </main>
+
+    <script>
+        feather.replace();
+    </script>
+</body>
+</html>

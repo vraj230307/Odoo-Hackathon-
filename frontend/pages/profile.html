@@ -1,0 +1,164 @@
+{% extends "base.html" %}
+
+{% block title %}Profile Settings | Traveloop{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">Profile Settings</h1>
+    <p class="page-subtitle">Manage your account details and preferences.</p>
+</div>
+
+<div class="grid grid-cols-3">
+    <div class="glass-card flex" style="flex-direction: column; align-items: center; text-align: center;">
+        <div class="profile-avatar" id="avatar-display">
+            <!-- Initials or photo loaded via JS -->
+            JD
+        </div>
+        <h3 id="display-name" style="margin-bottom: 0.5rem;">Loading...</h3>
+        <p id="display-email" class="text-muted mb-4">loading@example.com</p>
+        
+        <button class="btn btn-outline w-full mb-4" onclick="document.getElementById('photo-url-input').style.display='block'">
+            <i data-feather="camera"></i> Change Photo
+        </button>
+        
+        <div id="photo-url-input" style="display: none; width: 100%;">
+            <input type="text" id="new-photo-url" class="form-control mb-4" placeholder="Enter image URL...">
+            <button class="btn w-full" onclick="updatePhoto()">Save Photo</button>
+        </div>
+    </div>
+
+    <div class="glass-card" style="grid-column: span 2;">
+        <h3>Account Information</h3>
+        <form class="mt-4" onsubmit="updateProfile(event)">
+            <div class="grid grid-cols-2">
+                <div class="form-group">
+                    <label>Username</label>
+                    <input type="text" id="username" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label>Email Address</label>
+                    <input type="email" id="email" class="form-control" required>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label>Preferred Language</label>
+                <select id="language" class="form-control">
+                    <option value="en">English</option>
+                    <option value="es">Spanish</option>
+                    <option value="fr">French</option>
+                    <option value="ja">Japanese</option>
+                </select>
+            </div>
+            
+            <div class="flex justify-between items-center mt-4">
+                <button type="submit" class="btn"><i data-feather="save"></i> Save Changes</button>
+                <button type="button" class="btn btn-danger" onclick="deleteAccount()"><i data-feather="alert-triangle"></i> Delete Account</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="glass-card mt-4">
+    <h3>Saved Destinations</h3>
+    <p class="text-muted mb-4">Places you want to visit.</p>
+    
+    <div id="destinations-list" class="flex gap-4" style="flex-wrap: wrap;">
+        <!-- Loaded via JS -->
+    </div>
+    
+    <div class="flex gap-4 mt-4" style="max-width: 400px;">
+        <input type="text" id="new-dest" class="form-control" placeholder="E.g. Bali, Indonesia">
+        <button class="btn" onclick="addDestination()"><i data-feather="plus"></i> Add</button>
+    </div>
+</div>
+
+<script>
+    async function loadProfile() {
+        try {
+            const user = await apiCall(`/profile/${AppState.currentUserId}`);
+            
+            // Populate Display
+            document.getElementById('display-name').textContent = user.username;
+            document.getElementById('display-email').textContent = user.email;
+            
+            if (user.profile_photo) {
+                const avatar = document.getElementById('avatar-display');
+                avatar.innerHTML = `<img src="${user.profile_photo}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">`;
+            } else {
+                document.getElementById('avatar-display').innerHTML = user.username.substring(0, 2).toUpperCase();
+            }
+
+            // Populate Form
+            document.getElementById('username').value = user.username;
+            document.getElementById('email').value = user.email;
+            document.getElementById('language').value = user.language;
+
+            // Populate Destinations
+            const destList = document.getElementById('destinations-list');
+            if (user.saved_destinations.length > 0) {
+                destList.innerHTML = user.saved_destinations.map(d => `
+                    <span class="badge badge-primary" style="font-size: 1rem; padding: 0.5rem 1rem;">
+                        <i data-feather="map-pin" style="width: 14px; height: 14px; margin-right: 5px;"></i> ${d}
+                    </span>
+                `).join('');
+                feather.replace();
+            } else {
+                destList.innerHTML = '<p class="text-muted">No saved destinations.</p>';
+            }
+
+        } catch (error) {
+            console.error("Failed to load profile:", error);
+        }
+    }
+
+    async function updateProfile(e) {
+        e.preventDefault();
+        const username = document.getElementById('username').value;
+        const email = document.getElementById('email').value;
+        const language = document.getElementById('language').value;
+
+        await apiCall(`/profile/update/${AppState.currentUserId}`, 'PUT', {
+            username, email, language
+        });
+        showToast('Profile updated successfully');
+        loadProfile();
+    }
+
+    async function updatePhoto() {
+        const url = document.getElementById('new-photo-url').value;
+        if (!url) return;
+
+        await apiCall('/profile/upload-photo', 'POST', {
+            user_id: AppState.currentUserId,
+            photo_url: url
+        });
+        showToast('Photo updated');
+        document.getElementById('photo-url-input').style.display = 'none';
+        loadProfile();
+    }
+
+    async function addDestination() {
+        const city = document.getElementById('new-dest').value;
+        if (!city) return;
+
+        await apiCall('/profile/save-destination', 'POST', {
+            user_id: AppState.currentUserId,
+            city_name: city
+        });
+        showToast('Destination added');
+        document.getElementById('new-dest').value = '';
+        loadProfile();
+    }
+
+    async function deleteAccount() {
+        if(confirm("DANGER: Are you absolutely sure you want to delete your account? This cannot be undone.")) {
+            await apiCall(`/profile/delete/${AppState.currentUserId}`, 'DELETE');
+            alert("Account deleted. Redirecting...");
+            window.location.href = "/";
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', loadProfile);
+</script>
+{% endblock %}

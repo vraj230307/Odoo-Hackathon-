@@ -1,0 +1,136 @@
+{% extends "base.html" %}
+
+{% block title %}Packing Checklist | Traveloop{% endblock %}
+
+{% block content %}
+<div class="page-header flex justify-between items-center">
+    <div>
+        <h1 class="page-title">Packing Checklist</h1>
+        <p class="page-subtitle">Trip ID: 1 (Paris, France)</p>
+    </div>
+    <div class="flex gap-4">
+        <button class="btn btn-outline" onclick="shareTrip(1)"><i data-feather="share-2"></i> Share Trip</button>
+        <button class="btn btn-danger" onclick="resetChecklist(1)"><i data-feather="rotate-ccw"></i> Reset</button>
+    </div>
+</div>
+
+<div class="grid grid-cols-3">
+    <div class="glass-card" style="grid-column: span 1;">
+        <h3>Add New Item</h3>
+        <form id="add-item-form" class="mt-4" onsubmit="addItem(event)">
+            <div class="form-group">
+                <label>Item Name</label>
+                <input type="text" id="item_name" class="form-control" required placeholder="e.g. Passport">
+            </div>
+            <div class="form-group">
+                <label>Category</label>
+                <select id="category" class="form-control">
+                    <option value="Documents">Documents</option>
+                    <option value="Clothing">Clothing</option>
+                    <option value="Toiletries">Toiletries</option>
+                    <option value="Electronics">Electronics</option>
+                    <option value="General">General</option>
+                </select>
+            </div>
+            <button type="submit" class="btn w-full"><i data-feather="plus"></i> Add Item</button>
+        </form>
+    </div>
+
+    <div class="glass-card" style="grid-column: span 2;">
+        <div class="flex justify-between items-center mb-4">
+            <h3>Your Checklist</h3>
+            <span class="badge badge-primary" id="item-count">0 items</span>
+        </div>
+        <div id="packing-list" class="mt-4">
+            <!-- Items loaded via JS -->
+            <p class="text-muted">Loading items...</p>
+        </div>
+    </div>
+</div>
+
+<script>
+    async function loadItems() {
+        try {
+            const data = await apiCall(`/packing/${AppState.currentTripId}`);
+            const listDiv = document.getElementById('packing-list');
+            document.getElementById('item-count').textContent = `${data.total_items} items`;
+            
+            if (data.items.length === 0) {
+                listDiv.innerHTML = '<p class="text-muted">Your checklist is empty.</p>';
+                return;
+            }
+
+            listDiv.innerHTML = data.items.map(item => `
+                <div class="packing-item ${item.packed_status ? 'packed' : ''}">
+                    <div class="flex items-center gap-4">
+                        <input type="checkbox" ${item.packed_status ? 'checked' : ''} 
+                               onchange="toggleItem(${item.id}, this.checked)">
+                        <div>
+                            <span class="item-name" style="font-weight: 500;">${item.item_name}</span>
+                            <span class="badge" style="margin-left: 10px; opacity: 0.8; font-size: 0.7rem;">${item.category}</span>
+                        </div>
+                    </div>
+                    <button class="btn btn-outline" style="padding: 0.4rem; border:none; color: var(--danger)" onclick="deleteItem(${item.id})">
+                        <i data-feather="trash-2" style="width: 16px; height: 16px;"></i>
+                    </button>
+                </div>
+            `).join('');
+            feather.replace();
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
+    async function toggleItem(id, status) {
+        await apiCall(`/packing/update/${id}`, 'PUT', { packed_status: status });
+        loadItems();
+    }
+
+    async function deleteItem(id) {
+        if(confirm("Are you sure you want to delete this item?")) {
+            await apiCall(`/packing/delete/${id}`, 'DELETE');
+            showToast('Item deleted');
+            loadItems();
+        }
+    }
+
+    async function addItem(e) {
+        e.preventDefault();
+        const name = document.getElementById('item_name').value;
+        const category = document.getElementById('category').value;
+        
+        await apiCall('/packing/add', 'POST', {
+            user_id: AppState.currentUserId,
+            trip_id: AppState.currentTripId,
+            item_name: name,
+            category: category
+        });
+        
+        showToast('Item added successfully');
+        document.getElementById('add-item-form').reset();
+        loadItems();
+    }
+
+    async function resetChecklist(tripId) {
+        if(confirm("Reset all items to unpacked?")) {
+            await apiCall(`/packing/reset/${tripId}`, 'POST');
+            showToast('Checklist reset');
+            loadItems();
+        }
+    }
+
+    async function shareTrip(tripId) {
+        try {
+            const data = await apiCall(`/share/create/${tripId}`, 'POST');
+            const url = window.location.origin + data.link;
+            prompt("Copy this public link to share your trip:", url);
+            showToast("Share link generated!");
+        } catch (e) {
+            console.error(e);
+        }
+    }
+
+    // Init
+    document.addEventListener('DOMContentLoaded', loadItems);
+</script>
+{% endblock %}

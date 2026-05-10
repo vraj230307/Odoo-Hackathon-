@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Analytics | Traveloop{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">Platform Analytics</h1>
+    <p class="page-subtitle">Global statistics and insights across all users.</p>
+</div>
+
+<!-- Key Metrics Row -->
+<div class="grid grid-cols-3 mb-4">
+    <div class="glass-card flex" style="flex-direction: column; align-items: center;">
+        <i data-feather="users" style="color: var(--accent); width: 40px; height: 40px;"></i>
+        <div class="stat-value" id="stat-users">0</div>
+        <p class="text-muted">Total Users</p>
+    </div>
+    
+    <div class="glass-card flex" style="flex-direction: column; align-items: center;">
+        <i data-feather="map" style="color: var(--primary); width: 40px; height: 40px;"></i>
+        <div class="stat-value" id="stat-trips">0</div>
+        <p class="text-muted">Trips Planned</p>
+    </div>
+
+    <div class="glass-card flex" style="flex-direction: column; align-items: center;">
+        <i data-feather="book-open" style="color: var(--secondary); width: 40px; height: 40px;"></i>
+        <div class="stat-value" id="stat-notes">0</div>
+        <p class="text-muted">Notes Written</p>
+    </div>
+</div>
+
+<div class="grid grid-cols-2 mt-4">
+    <!-- Popular Cities -->
+    <div class="glass-card">
+        <h3 class="mb-4">Trending Destinations</h3>
+        <div id="popular-cities-list">
+            <!-- Loaded via JS -->
+            <p class="text-muted">Loading data...</p>
+        </div>
+    </div>
+
+    <!-- Recent Activity -->
+    <div class="glass-card" style="display: flex; flex-direction: column; gap: 2rem;">
+        <div>
+            <h3 class="mb-4">Recent Users</h3>
+            <div id="recent-users-list">
+                <!-- Loaded via JS -->
+            </div>
+        </div>
+        
+        <div>
+            <h3 class="mb-4">Recent Trips</h3>
+            <div id="recent-trips-list">
+                <!-- Loaded via JS -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    async function loadAnalytics() {
+        try {
+            // 1. Load Stats
+            const stats = await apiCall('/admin/stats');
+            document.getElementById('stat-users').textContent = stats.total_users;
+            document.getElementById('stat-trips').textContent = stats.total_trips;
+            document.getElementById('stat-notes').textContent = stats.total_notes;
+
+            // 2. Load Popular Cities
+            const citiesData = await apiCall('/admin/popular-cities');
+            const citiesHTML = citiesData.popular_cities.map((c, index) => `
+                <div class="flex justify-between items-center mb-4" style="padding-bottom: 0.5rem; border-bottom: 1px solid var(--border-color);">
+                    <div class="flex items-center gap-4">
+                        <span style="font-size: 1.2rem; font-weight: bold; color: var(--text-muted);">#${index + 1}</span>
+                        <span>${c.city}</span>
+                    </div>
+                    <span class="badge badge-primary">${c.saves} Saves</span>
+                </div>
+            `).join('');
+            document.getElementById('popular-cities-list').innerHTML = citiesHTML || '<p class="text-muted">No data available.</p>';
+
+            // 3. Load Recent Users
+            const usersData = await apiCall('/admin/recent-users');
+            const usersHTML = usersData.recent_users.map(u => `
+                <div class="flex items-center gap-4 mb-4">
+                    <div style="width: 35px; height: 35px; border-radius: 50%; background: var(--surface-hover); display: flex; align-items: center; justify-content: center;">
+                        <i data-feather="user" style="width: 16px; height: 16px; color: var(--text-muted);"></i>
+                    </div>
+                    <div>
+                        <div style="font-weight: 500;">${u.username}</div>
+                        <div style="font-size: 0.8rem; color: var(--text-muted);">ID: ${u.id}</div>
+                    </div>
+                </div>
+            `).join('');
+            document.getElementById('recent-users-list').innerHTML = usersHTML || '<p class="text-muted">No users.</p>';
+
+            // 4. Load Recent Trips
+            const tripsData = await apiCall('/admin/recent-trips');
+            const tripsHTML = tripsData.recent_trips.map(t => `
+                <div class="flex justify-between items-center mb-4 p-4" style="background: rgba(255,255,255,0.02); border-radius: 8px;">
+                    <div>
+                        <div style="font-weight: 500;">${t.destination}</div>
+                        <div style="font-size: 0.8rem; color: var(--text-muted);">Trip ID: ${t.id}</div>
+                    </div>
+                </div>
+            `).join('');
+            document.getElementById('recent-trips-list').innerHTML = tripsHTML || '<p class="text-muted">No trips.</p>';
+
+            feather.replace();
+        } catch (error) {
+            console.error("Error loading analytics:", error);
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', loadAnalytics);
+</script>
+{% endblock %}

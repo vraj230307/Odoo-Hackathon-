@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard | Traveloop{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">Welcome to Traveloop</h1>
+    <p class="page-subtitle">Your personalized travel planning dashboard.</p>
+</div>
+
+<div class="grid grid-cols-2 mt-4">
+    <div class="glass-card">
+        <h3><i data-feather="check-square" style="color: var(--primary);"></i> Packing Checklist</h3>
+        <p class="mt-4 text-muted">Never forget an item again. Organize your packing list dynamically.</p>
+        <a href="/ui/packing" class="btn mt-4">Go to Checklist</a>
+    </div>
+    
+    <div class="glass-card">
+        <h3><i data-feather="book-open" style="color: var(--secondary);"></i> Trip Notes</h3>
+        <p class="mt-4 text-muted">Keep a beautiful journal of your travel plans and recommendations.</p>
+        <a href="/ui/notes" class="btn mt-4">View Notes</a>
+    </div>
+
+    <div class="glass-card">
+        <h3><i data-feather="user" style="color: var(--accent);"></i> Profile Settings</h3>
+        <p class="mt-4 text-muted">Manage your account, preferences, and saved destinations.</p>
+        <a href="/ui/profile" class="btn mt-4">Edit Profile</a>
+    </div>
+
+    <div class="glass-card">
+        <h3><i data-feather="pie-chart" style="color: var(--success);"></i> Admin Analytics</h3>
+        <p class="mt-4 text-muted">View platform-wide statistics and trending destinations.</p>
+        <a href="/ui/admin" class="btn mt-4">View Dashboard</a>
+    </div>
+</div>
+{% endblock %}

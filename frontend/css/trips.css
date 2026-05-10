@@ -1,0 +1,20 @@
+.trip-container {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px var(--shadow-color, rgba(0,0,0,0.1));
+}
+
+#create-trip-form input {
+    border: 1px solid var(--primary-color);
+    padding: 10px;
+}
+
+#create-trip-form button {
+    background-color: var(--primary-color);
+    color: var(--btn-text-color, #fff);
+    padding: 10px 15px;
+    border: none;
+    cursor: pointer;
+}

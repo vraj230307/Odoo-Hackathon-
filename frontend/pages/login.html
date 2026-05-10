@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Traveloop — Login</title>
+  <link rel="stylesheet" href="../css/main.css"/>
+  <link rel="stylesheet" href="../css/auth.css"/>
+</head>
+<body>
+
+  <div class="auth-wrapper">
+
+    <div class="auth-card">
+
+      <div class="auth-logo">
+        <span class="logo-icon">✈</span>
+        <span class="logo-text">Traveloop</span>
+      </div>
+
+      <h1 class="auth-title">Welcome back</h1>
+      <p class="auth-subtitle">Login to continue planning your trips</p>
+
+      <div class="error-box" id="errorBox"></div>
+
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input type="email" id="email" placeholder="you@example.com" />
+      </div>
+
+      <div class="form-group">
+        <label for="password">Password</label>
+        <div class="input-row">
+          <input type="password" id="password" placeholder="Enter your password" />
+          <button class="toggle-pw" onclick="togglePassword()" type="button">Show</button>
+        </div>
+      </div>
+
+      <div class="form-footer-row">
+        <label class="remember-me">
+          <input type="checkbox" id="remember" /> Remember me
+        </label>
+        <a href="forgot_password.html" class="forgot-link">Forgot password?</a>
+      </div>
+
+      <button class="btn-primary btn-full" onclick="handleLogin()">
+        Login
+      </button>
+
+      <p class="switch-auth">
+        Don't have an account? <a href="signup.html">Sign up</a>
+      </p>
+
+    </div>
+
+    <div class="auth-banner">
+      <div class="banner-content">
+        <h2>Plan your next adventure</h2>
+        <p>Multi-city itineraries, budget tracking, and more — all in one place.</p>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="../js/api.js"></script>
+  <script src="../js/auth.js"></script>
+
+</body>
+</html>

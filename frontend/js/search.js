@@ -197,6 +197,14 @@ function initCitySearch() {
   let activeSort = 'name';
   let searchQuery = '';
 
+  // Auto-search from URL param
+  const urlParams = new URLSearchParams(window.location.search);
+  const preSearch = urlParams.get('search');
+  if (preSearch) {
+    searchQuery = preSearch;
+    if (searchInput) searchInput.value = preSearch;
+  }
+
   /* Fetch all cities */
   async function loadCities() {
     grid.innerHTML = '<div class="spinner"></div>';

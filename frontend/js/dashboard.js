@@ -15,7 +15,7 @@ document.addEventListener("DOMContentLoaded", () => {
   
   async function loadTrips() {
     try {
-      const res = await apiRequest("/trips");
+      const res = await apiRequest(`/trips?user_id=${user.id}`);
   
       if (res.success && res.data.length > 0) {
         document.getElementById("emptyState").style.display = "none";

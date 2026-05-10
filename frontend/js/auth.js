@@ -51,6 +51,10 @@ function togglePassword() {
     }
   }
   function togglePassword(fieldId, btn) {
+    if (!fieldId) {
+      fieldId = "password";
+      btn = document.querySelector(".toggle-pw");
+    }
     const pw = document.getElementById(fieldId);
     if (pw.type === "password") {
       pw.type = "text";

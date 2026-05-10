@@ -6,7 +6,14 @@ trip_routes = Blueprint('trip_routes', __name__)
 @trip_routes.route('/trips', methods=['GET'])
 def get_trips():
     try:
-        trips = Trip.query.all()
+        # Get user_id from query param or header
+        user_id = request.args.get('user_id')
+        
+        if user_id:
+            trips = Trip.query.filter_by(user_id=int(user_id)).all()
+        else:
+            trips = Trip.query.all()
+            
         data = [{"id": t.id, "destination": t.destination, "created_at": str(t.created_at)} for t in trips]
         return jsonify({"success": True, "message": "Fetched all trips successfully", "data": data}), 200
     except Exception as e:

@@ -1,0 +1,7 @@
+services:
+  - type: web
+    name: traveloop
+    env: python
+    buildCommand: pip install -r backend/requirements.txt
+    startCommand: cd backend && python app.py
+    rootDir: .

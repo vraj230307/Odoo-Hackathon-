@@ -10,8 +10,8 @@
 const API_BASE = window.API_BASE || 'http://localhost:5000';
 
 const ENDPOINTS = {
-  cities:     `${API_BASE}/cities`,
-  activities: `${API_BASE}/activities`,
+  cities:     `${API_BASE}/api/cities`,
+  activities: `${API_BASE}/api/activities`,
 };
 
 /* ══════════════════════════════════════════════

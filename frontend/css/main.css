@@ -70,3 +70,7 @@
     box-shadow: var(--shadow);
     padding: 20px;
   }
+
+  .destination-card {
+    cursor: pointer;
+  }

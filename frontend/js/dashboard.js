@@ -29,10 +29,10 @@ document.addEventListener("DOMContentLoaded", () => {
           const card = document.createElement("div");
           card.className = "trip-card";
           card.innerHTML = `
-            <h3>${trip.name}</h3>
-            <div class="trip-dates">${trip.start_date} → ${trip.end_date}</div>
-            <span class="trip-tag">${trip.destination_count || 0} stops</span>
-          `;
+          <h3>${trip.name || trip.destination || "My Trip"}</h3>
+          <div class="trip-dates">${trip.start_date || ""} ${trip.end_date ? "→ " + trip.end_date : ""}</div>
+          <span class="trip-tag">${trip.destination || ""}</span>
+        `;
           grid.appendChild(card);
         });
       }

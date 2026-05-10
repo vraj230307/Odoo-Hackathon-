@@ -42,7 +42,7 @@ function togglePassword() {
       if (res.success) {
         localStorage.setItem("token", res.data.token);
         localStorage.setItem("user", JSON.stringify(res.data.user));
-        window.location.href = "dashboard.html";
+        window.location.href = "/pages/dashboard.html";
       } else {
         showError(res.message || "Login failed. Try again.");
       }

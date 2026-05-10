@@ -1,17 +1,85 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Trips</title>
-    <link rel="stylesheet" href="../css/main.css">
-    <link rel="stylesheet" href="../css/trips.css">
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Traveloop — My Trips</title>
+  <link rel="stylesheet" href="/css/main.css"/>
+  <link rel="stylesheet" href="/css/dashboard.css"/>
 </head>
 <body>
-    <div class="trip-container">
-        <h1>My Trips</h1>
-        <div id="trips-list"></div>
+
+  <nav class="navbar">
+    <div class="nav-logo">
+      <span class="logo-icon">✈</span>
+      <span class="logo-text">Traveloop</span>
     </div>
-    <script src="../js/trips.js"></script>
+    <div class="nav-links">
+      <a href="/pages/dashboard.html">Home</a>
+      <a href="/pages/my_trips.html" class="active">My Trips</a>
+      <a href="/pages/profile.html">Profile</a>
+    </div>
+    <div class="nav-right">
+      <a href="/pages/create_trip.html" class="btn-primary" style="padding:8px 18px;font-size:14px;">+ New Trip</a>
+    </div>
+  </nav>
+
+  <div class="dashboard-wrapper">
+
+    <div class="section-header">
+      <h2>My Trips</h2>
+      <span id="tripCount" style="color:var(--text-muted);font-size:14px;"></span>
+    </div>
+
+    <div class="trips-grid" id="tripsGrid">
+      <div class="empty-state" id="emptyState">
+        <div class="empty-icon">🗺️</div>
+        <p>No trips yet. Start planning your first adventure!</p>
+        <a href="/pages/create_trip.html" class="btn-primary">Create your first trip</a>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="/js/api.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", async () => {
+      const user = JSON.parse(localStorage.getItem("user"));
+      if (!user) { window.location.href = "/pages/login.html"; return; }
+
+      try {
+        const res = await apiRequest("/trips");
+        if (res.success && res.data.length > 0) {
+          document.getElementById("emptyState").style.display = "none";
+          document.getElementById("tripCount").textContent = `${res.data.length} trip(s)`;
+          const grid = document.getElementById("tripsGrid");
+          res.data.forEach(trip => {
+            const card = document.createElement("div");
+            card.className = "trip-card";
+            card.innerHTML = `
+              <h3>${trip.name || trip.destination || "Unnamed Trip"}</h3>
+              <div class="trip-dates">${trip.start_date || ""} ${trip.end_date ? "→ " + trip.end_date : ""}</div>
+              <div style="display:flex;gap:8px;margin-top:12px;">
+                <span class="trip-tag">${trip.destination || ""}</span>
+              </div>
+              <div style="display:flex;gap:8px;margin-top:14px;">
+                <button onclick="deleteTrip(${trip.id})" style="background:var(--danger);color:white;padding:6px 14px;border-radius:var(--radius);font-size:13px;">Delete</button>
+              </div>
+            `;
+            grid.appendChild(card);
+          });
+        }
+      } catch(e) {
+        console.log("No trips.");
+      }
+    });
+
+    async function deleteTrip(id) {
+      if (!confirm("Delete this trip?")) return;
+      await apiRequest(`/trip/${id}`, "DELETE");
+      window.location.reload();
+    }
+  </script>
+
 </body>
 </html>

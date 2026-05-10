@@ -1,3 +1,11 @@
+:root{
+  --primary:#2563eb;
+  --primary-dark:#1d4ed8;
+  --accent:#f97316;
+  --bg:#f8fafc;
+  --surface:#ffffff;
+  --text-primary:#0f172a;
+}
 /* =====================================================
    Traveloop — search.css
    Member 3: Search + Budget Module

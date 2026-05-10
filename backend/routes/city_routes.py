@@ -1,108 +1,80 @@
-# backend/routes/city_routes.py
-
 from flask import Blueprint, jsonify, request
-from database import get_db_connection
+from models import db
+import sqlite3
+import os
 
-city_routes = Blueprint('city_routes', **name**)
+city_bp = Blueprint('city', __name__)
 
-# =========================
+def get_db():
+    db_path = os.path.join(os.path.dirname(__file__), '..', 'database.db')
+    conn = sqlite3.connect(db_path)
+    conn.row_factory = sqlite3.Row
+    return conn
 
-# GET ALL CITIES
-
-# =========================
-
-@city_routes.route('/cities', methods=['GET'])
+@city_bp.route('/cities', methods=['GET'])
 def get_cities():
+    try:
+        country = request.args.get('country')
+        region  = request.args.get('region')
+        search  = request.args.get('search')
 
-```
-country = request.args.get('country')
-region = request.args.get('region')
-search = request.args.get('search')
+        conn   = get_db()
+        cursor = conn.cursor()
 
-conn = get_db_connection()
-cursor = conn.cursor()
+        query  = "SELECT * FROM cities WHERE 1=1"
+        params = []
 
-query = "SELECT * FROM cities WHERE 1=1"
-params = []
+        if country:
+            query += " AND country = ?"
+            params.append(country)
+        if region:
+            query += " AND region = ?"
+            params.append(region)
+        if search:
+            query += " AND name LIKE ?"
+            params.append(f"%{search}%")
 
-if country:
-    query += " AND country = ?"
-    params.append(country)
+        cursor.execute(query, params)
+        cities = [dict(row) for row in cursor.fetchall()]
+        conn.close()
 
-if region:
-    query += " AND region = ?"
-    params.append(region)
+        return jsonify({"success": True, "message": "Cities fetched.", "data": cities}), 200
+    except Exception as e:
+        return jsonify({"success": False, "message": str(e), "data": []}), 500
 
-if search:
-    query += " AND name LIKE ?"
-    params.append(f"%{search}%")
 
-cursor.execute(query, params)
-
-cities = [dict(row) for row in cursor.fetchall()]
-
-conn.close()
-
-return jsonify({
-    "success": True,
-    "message": "Cities fetched successfully",
-    "data": cities
-})
-```
-
-# =========================
-
-# GET ACTIVITIES
-
-# =========================
-
-@city_routes.route('/activities', methods=['GET'])
+@city_bp.route('/activities', methods=['GET'])
 def get_activities():
+    try:
+        category = request.args.get('category')
+        max_cost = request.args.get('max_cost')
+        search   = request.args.get('search')
 
-```
-category = request.args.get('category')
-max_cost = request.args.get('max_cost')
-search = request.args.get('search')
+        conn   = get_db()
+        cursor = conn.cursor()
 
-conn = get_db_connection()
-cursor = conn.cursor()
+        query = """
+            SELECT a.id, a.name, a.category, a.cost, c.name as city
+            FROM activities a
+            JOIN cities c ON a.city_id = c.id
+            WHERE 1=1
+        """
+        params = []
 
-query = """
-    SELECT
-        activities.id,
-        activities.name,
-        activities.category,
-        activities.cost,
-        cities.name as city
-    FROM activities
-    JOIN cities
-    ON activities.city_id = cities.id
-    WHERE 1=1
-"""
+        if category:
+            query += " AND a.category = ?"
+            params.append(category)
+        if max_cost:
+            query += " AND a.cost <= ?"
+            params.append(float(max_cost))
+        if search:
+            query += " AND a.name LIKE ?"
+            params.append(f"%{search}%")
 
-params = []
+        cursor.execute(query, params)
+        activities = [dict(row) for row in cursor.fetchall()]
+        conn.close()
 
-if category:
-    query += " AND activities.category = ?"
-    params.append(category)
-
-if max_cost:
-    query += " AND activities.cost <= ?"
-    params.append(max_cost)
-
-if search:
-    query += " AND activities.name LIKE ?"
-    params.append(f"%{search}%")
-
-cursor.execute(query, params)
-
-activities = [dict(row) for row in cursor.fetchall()]
-
-conn.close()
-
-return jsonify({
-    "success": True,
-    "message": "Activities fetched successfully",
-    "data": activities
-})
-```
+        return jsonify({"success": True, "message": "Activities fetched.", "data": activities}), 200
+    except Exception as e:
+        return jsonify({"success": False, "message": str(e), "data": []}), 500

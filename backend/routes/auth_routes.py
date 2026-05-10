@@ -1,5 +1,6 @@
-from flask import Blueprint, request, jsonify
-from supabase_client import supabase
+from flask import Blueprint, request, jsonify, session
+from models import db, User
+from werkzeug.security import generate_password_hash, check_password_hash
 
 auth_bp = Blueprint('auth', __name__)
 
@@ -12,27 +13,23 @@ def register():
         password = data.get('password')
 
         if not fullname or not email or not password:
-            return jsonify({ "success": False, "message": "All fields are required.", "data": [] }), 400
+            return jsonify({"success": False, "message": "All fields required.", "data": []}), 400
 
-        res = supabase.auth.sign_up({
-            "email": email,
-            "password": password,
-            "options": { "data": { "full_name": fullname } }
-        })
+        if User.query.filter_by(email=email).first():
+            return jsonify({"success": False, "message": "Email already registered.", "data": []}), 400
 
-        if res.user:
-            supabase.table("users_profile").insert({
-                "id": res.user.id,
-                "full_name": fullname,
-                "email": email
-            }).execute()
+        user = User(
+            username=fullname,
+            email=email,
+            password=generate_password_hash(password)
+        )
+        db.session.add(user)
+        db.session.commit()
 
-            return jsonify({ "success": True, "message": "Account created!", "data": [] }), 201
-        else:
-            return jsonify({ "success": False, "message": "Signup failed.", "data": [] }), 400
+        return jsonify({"success": True, "message": "Account created!", "data": []}), 201
 
     except Exception as e:
-        return jsonify({ "success": False, "message": str(e), "data": [] }), 500
+        return jsonify({"success": False, "message": str(e), "data": []}), 500
 
 
 @auth_bp.route('/login', methods=['POST'])
@@ -43,37 +40,30 @@ def login():
         password = data.get('password')
 
         if not email or not password:
-            return jsonify({ "success": False, "message": "Email and password required.", "data": [] }), 400
+            return jsonify({"success": False, "message": "Email and password required.", "data": []}), 400
 
-        res = supabase.auth.sign_in_with_password({
-            "email": email,
-            "password": password
-        })
+        user = User.query.filter_by(email=email).first()
 
-        if res.user:
-            return jsonify({
-                "success": True,
-                "message": "Login successful.",
-                "data": {
-                    "token": res.session.access_token,
-                    "user": {
-                        "id": res.user.id,
-                        "email": res.user.email,
-                        "full_name": res.user.user_metadata.get("full_name", "")
-                    }
+        if not user or not check_password_hash(user.password, password):
+            return jsonify({"success": False, "message": "Invalid credentials.", "data": []}), 401
+
+        return jsonify({
+            "success": True,
+            "message": "Login successful.",
+            "data": {
+                "token": str(user.id),
+                "user": {
+                    "id": user.id,
+                    "email": user.email,
+                    "full_name": user.username
                 }
-            }), 200
-        else:
-            return jsonify({ "success": False, "message": "Invalid credentials.", "data": [] }), 401
+            }
+        }), 200
 
     except Exception as e:
-        return jsonify({ "success": False, "message": str(e), "data": [] }), 500
+        return jsonify({"success": False, "message": str(e), "data": []}), 500
 
 
 @auth_bp.route('/logout', methods=['POST'])
 def logout():
-    try:
-        supabase.auth.sign_out()
-        return jsonify({ "success": True, "message": "Logged out.", "data": [] }), 200
-    except Exception as e:
-        return jsonify({ "success": False, "message": str(e), "data": [] }), 500
+    return jsonify({"success": True, "message": "Logged out.", "data": []}), 200

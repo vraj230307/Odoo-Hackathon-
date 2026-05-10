@@ -1,73 +1,67 @@
-# backend/routes/budget_routes.py
-
 from flask import Blueprint, jsonify, request
-from database import get_db_connection
+import sqlite3
+import os
 
-budget_routes = Blueprint('budget_routes', **name**)
+budget_bp = Blueprint('budget', __name__)
 
-@budget_routes.route('/budget/calculate', methods=['POST'])
-def calculate_budget():
+def get_db():
+    db_path = os.path.join(os.path.dirname(__file__), '..', 'database.db')
+    conn = sqlite3.connect(db_path)
+    conn.row_factory = sqlite3.Row
+    return conn
 
-```
-data = request.get_json()
+@budget_bp.route('/expenses', methods=['GET'])
+def get_expenses():
+    try:
+        trip_id = request.args.get('trip_id')
+        conn = get_db()
+        cursor = conn.cursor()
 
-days = int(data.get('days', 1))
-selected_activities = data.get('activities', [])
+        if trip_id:
+            cursor.execute("SELECT * FROM expenses WHERE trip_id = ?", [trip_id])
+        else:
+            cursor.execute("SELECT * FROM expenses")
 
-conn = get_db_connection()
-cursor = conn.cursor()
+        expenses = [dict(row) for row in cursor.fetchall()]
+        conn.close()
 
-total_activity_cost = 0
+        total = sum(e['amount'] for e in expenses)
 
-if selected_activities:
+        return jsonify({"success": True, "message": "Expenses fetched.", "data": {"expenses": expenses, "total": total}}), 200
+    except Exception as e:
+        return jsonify({"success": False, "message": str(e), "data": []}), 500
 
-    placeholders = ",".join(["?"] * len(selected_activities))
 
-    query = f"""
-        SELECT SUM(cost) as total
-        FROM activities
-        WHERE id IN ({placeholders})
-    """
+@budget_bp.route('/expenses', methods=['POST'])
+def add_expense():
+    try:
+        data        = request.get_json()
+        trip_id     = data.get('trip_id')
+        category    = data.get('category')
+        description = data.get('description')
+        amount      = data.get('amount')
+        date        = data.get('expense_date')
 
-    cursor.execute(query, selected_activities)
+        conn = get_db()
+        conn.execute(
+            "INSERT INTO expenses (trip_id, category, description, amount, expense_date) VALUES (?,?,?,?,?)",
+            [trip_id, category, description, amount, date]
+        )
+        conn.commit()
+        conn.close()
 
-    result = cursor.fetchone()
+        return jsonify({"success": True, "message": "Expense added.", "data": []}), 201
+    except Exception as e:
+        return jsonify({"success": False, "message": str(e), "data": []}), 500
 
-    if result['total']:
-        total_activity_cost = result['total']
 
-conn.close()
-
-hotel_cost = days * 3000
-transport_cost = days * 1200
-
-total_budget = (
-    hotel_cost +
-    transport_cost +
-    total_activity_cost
-)
-
-average_per_day = round(total_budget / days, 2)
-
-alert = ""
-
-if total_budget > 50000:
-    alert = "⚠️ High budget trip"
-elif total_budget > 25000:
-    alert = "Moderate budget trip"
-else:
-    alert = "Budget friendly trip"
-
-return jsonify({
-    "success": True,
-    "message": "Budget calculated successfully",
-    "data": {
-        "total_budget": total_budget,
-        "average_per_day": average_per_day,
-        "hotel": hotel_cost,
-        "transport": transport_cost,
-        "activities": total_activity_cost,
-        "alert": alert
-    }
-})
-```
+@budget_bp.route('/expenses/<int:expense_id>', methods=['DELETE'])
+def delete_expense(expense_id):
+    try:
+        conn = get_db()
+        conn.execute("DELETE FROM expenses WHERE id = ?", [expense_id])
+        conn.commit()
+        conn.close()
+        return jsonify({"success": True, "message": "Expense deleted.", "data": []}), 200
+    except Exception as e:
+        return jsonify({"success": False, "message": str(e), "data": []}), 500

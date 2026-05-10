@@ -1,36 +1,105 @@
-{% extends "base.html" %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Traveloop — Dashboard</title>
+  <link rel="stylesheet" href="/css/main.css"/>
+  <link rel="stylesheet" href="/css/dashboard.css"/>
+</head>
+<body>
 
-{% block title %}Dashboard | Traveloop{% endblock %}
-
-{% block content %}
-<div class="page-header">
-    <h1 class="page-title">Welcome to Traveloop</h1>
-    <p class="page-subtitle">Your personalized travel planning dashboard.</p>
-</div>
-
-<div class="grid grid-cols-2 mt-4">
-    <div class="glass-card">
-        <h3><i data-feather="check-square" style="color: var(--primary);"></i> Packing Checklist</h3>
-        <p class="mt-4 text-muted">Never forget an item again. Organize your packing list dynamically.</p>
-        <a href="/ui/packing" class="btn mt-4">Go to Checklist</a>
+  <nav class="navbar">
+    <div class="nav-logo">
+      <span class="logo-icon">✈</span>
+      <span class="logo-text">Traveloop</span>
     </div>
-    
-    <div class="glass-card">
-        <h3><i data-feather="book-open" style="color: var(--secondary);"></i> Trip Notes</h3>
-        <p class="mt-4 text-muted">Keep a beautiful journal of your travel plans and recommendations.</p>
-        <a href="/ui/notes" class="btn mt-4">View Notes</a>
+    <div class="nav-links">
+      <a href="/pages/dashboard.html" class="active">Home</a>
+      <a href="/pages/my_trips.html">My Trips</a>
+      <a href="/pages/profile.html">Profile</a>
+    </div>
+    <div class="nav-right">
+      <span class="nav-username" id="navUsername">Hey, traveler!</span>
+      <button class="btn-logout" onclick="handleLogout()">Logout</button>
+    </div>
+  </nav>
+
+  <div class="dashboard-wrapper">
+
+    <div class="welcome-banner">
+      <div class="welcome-text">
+        <h1 id="welcomeMsg">Welcome back!</h1>
+        <p>Ready to plan your next adventure?</p>
+      </div>
+      <a href="/pages/create_trip.html" class="btn-primary btn-plan">
+        + Plan New Trip
+      </a>
     </div>
 
-    <div class="glass-card">
-        <h3><i data-feather="user" style="color: var(--accent);"></i> Profile Settings</h3>
-        <p class="mt-4 text-muted">Manage your account, preferences, and saved destinations.</p>
-        <a href="/ui/profile" class="btn mt-4">Edit Profile</a>
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-number" id="totalTrips">0</div>
+        <div class="stat-label">Total Trips</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number" id="upcomingTrips">0</div>
+        <div class="stat-label">Upcoming</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number" id="citiesVisited">0</div>
+        <div class="stat-label">Cities Planned</div>
+      </div>
     </div>
 
-    <div class="glass-card">
-        <h3><i data-feather="pie-chart" style="color: var(--success);"></i> Admin Analytics</h3>
-        <p class="mt-4 text-muted">View platform-wide statistics and trending destinations.</p>
-        <a href="/ui/admin" class="btn mt-4">View Dashboard</a>
+    <div class="section-header">
+      <h2>Recent Trips</h2>
+      <a href="/pages/my_trips.html">View all</a>
     </div>
-</div>
-{% endblock %}
+
+    <div class="trips-grid" id="tripsGrid">
+      <div class="empty-state" id="emptyState">
+        <div class="empty-icon">🗺️</div>
+        <p>No trips yet. Start planning your first adventure!</p>
+        <a href="/pages/create_trip.html" class="btn-primary">Create your first trip</a>
+      </div>
+    </div>
+
+    <div class="section-header">
+      <h2>Recommended Destinations</h2>
+    </div>
+
+    <div class="destinations-grid">
+      <div class="destination-card">
+        <div class="dest-emoji">🗼</div>
+        <div class="dest-info"><h3>Paris</h3><p>France · Culture & Art</p></div>
+      </div>
+      <div class="destination-card">
+        <div class="dest-emoji">🏯</div>
+        <div class="dest-info"><h3>Tokyo</h3><p>Japan · Food & Tech</p></div>
+      </div>
+      <div class="destination-card">
+        <div class="dest-emoji">🗽</div>
+        <div class="dest-info"><h3>New York</h3><p>USA · City & Culture</p></div>
+      </div>
+      <div class="destination-card">
+        <div class="dest-emoji">🏝️</div>
+        <div class="dest-info"><h3>Bali</h3><p>Indonesia · Nature & Relax</p></div>
+      </div>
+      <div class="destination-card">
+        <div class="dest-emoji">🕌</div>
+        <div class="dest-info"><h3>Dubai</h3><p>UAE · Luxury & Modern</p></div>
+      </div>
+      <div class="destination-card">
+        <div class="dest-emoji">🏛️</div>
+        <div class="dest-info"><h3>Rome</h3><p>Italy · History & Food</p></div>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/dashboard.js"></script>
+
+</body>
+</html>

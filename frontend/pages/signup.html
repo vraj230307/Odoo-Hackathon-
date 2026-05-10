@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Traveloop — Sign Up</title>
+  <link rel="stylesheet" href="../css/main.css"/>
+  <link rel="stylesheet" href="../css/auth.css"/>
+</head>
+<body>
+
+  <div class="auth-wrapper">
+
+    <div class="auth-card">
+
+      <div class="auth-logo">
+        <span class="logo-icon">✈</span>
+        <span class="logo-text">Traveloop</span>
+      </div>
+
+      <h1 class="auth-title">Create your account</h1>
+      <p class="auth-subtitle">Start planning your dream trips today</p>
+
+      <div class="error-box" id="errorBox"></div>
+      <div class="success-box" id="successBox"></div>
+
+      <div class="form-group">
+        <label for="fullname">Full Name</label>
+        <input type="text" id="fullname" placeholder="John Doe" />
+      </div>
+
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input type="email" id="email" placeholder="you@example.com" />
+      </div>
+
+      <div class="form-group">
+        <label for="password">Password</label>
+        <div class="input-row">
+          <input type="password" id="password" placeholder="Min. 6 characters" />
+          <button class="toggle-pw" onclick="togglePassword('password', this)" type="button">Show</button>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="confirm">Confirm Password</label>
+        <div class="input-row">
+          <input type="password" id="confirm" placeholder="Repeat your password" />
+          <button class="toggle-pw" onclick="togglePassword('confirm', this)" type="button">Show</button>
+        </div>
+      </div>
+
+      <button class="btn-primary btn-full" onclick="handleSignup()">
+        Create Account
+      </button>
+
+      <p class="switch-auth">
+        Already have an account? <a href="login.html">Login</a>
+      </p>
+
+    </div>
+
+    <div class="auth-banner">
+      <div class="banner-content">
+        <h2>Join thousands of travelers</h2>
+        <p>Plan smarter, travel better. Your personalized journey starts here.</p>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="../js/api.js"></script>
+  <script src="../js/auth.js"></script>
+
+</body>
+</html>

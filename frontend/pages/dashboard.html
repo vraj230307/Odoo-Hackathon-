@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Traveloop — Dashboard</title>
+  <link rel="stylesheet" href="../css/main.css"/>
+  <link rel="stylesheet" href="../css/dashboard.css"/>
+</head>
+<body>
+
+  <nav class="navbar">
+    <div class="nav-logo">
+      <span class="logo-icon">✈</span>
+      <span class="logo-text">Traveloop</span>
+    </div>
+    <div class="nav-links">
+      <a href="dashboard.html" class="active">Home</a>
+      <a href="my_trips.html">My Trips</a>
+      <a href="profile.html">Profile</a>
+    </div>
+    <div class="nav-right">
+      <span class="nav-username" id="navUsername">Hey, traveler!</span>
+      <button class="btn-logout" onclick="handleLogout()">Logout</button>
+    </div>
+  </nav>
+
+  <div class="dashboard-wrapper">
+
+    <div class="welcome-banner">
+      <div class="welcome-text">
+        <h1 id="welcomeMsg">Welcome back!</h1>
+        <p>Ready to plan your next adventure?</p>
+      </div>
+      <a href="create_trip.html" class="btn-primary btn-plan">
+        + Plan New Trip
+      </a>
+    </div>
+
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-number" id="totalTrips">0</div>
+        <div class="stat-label">Total Trips</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number" id="upcomingTrips">0</div>
+        <div class="stat-label">Upcoming</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number" id="citiesVisited">0</div>
+        <div class="stat-label">Cities Planned</div>
+      </div>
+    </div>
+
+    <div class="section-header">
+      <h2>Recent Trips</h2>
+      <a href="my_trips.html">View all</a>
+    </div>
+
+    <di

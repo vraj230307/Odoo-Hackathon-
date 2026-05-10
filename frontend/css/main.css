@@ -1,0 +1,72 @@
+:root {
+    --primary:     #4F46E5;
+    --secondary:   #06B6D4;
+    --bg:          #F8FAFC;
+    --surface:     #FFFFFF;
+    --text:        #1E293B;
+    --text-muted:  #64748B;
+    --border:      #E2E8F0;
+    --danger:      #EF4444;
+    --success:     #22C55E;
+    --radius:      10px;
+    --shadow:      0 2px 8px rgba(0,0,0,0.08);
+  }
+  
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  
+  body {
+    font-family: 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+  }
+  
+  a { text-decoration: none; color: inherit; }
+  
+  button {
+    cursor: pointer;
+    border: none;
+    border-radius: var(--radius);
+    padding: 10px 20px;
+    font-size: 15px;
+    transition: opacity 0.2s;
+  }
+  
+  button:hover { opacity: 0.85; }
+  
+  .btn-primary {
+    background: var(--primary);
+    color: #fff;
+  }
+  
+  .btn-secondary {
+    background: var(--secondary);
+    color: #fff;
+  }
+  
+  input, select, textarea {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    font-size: 15px;
+    background: var(--surface);
+    color: var(--text);
+    outline: none;
+    transition: border 0.2s;
+  }
+  
+  input:focus, select:focus, textarea:focus {
+    border-color: var(--primary);
+  }
+  
+  .card {
+    background: var(--surface);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 20px;
+  }

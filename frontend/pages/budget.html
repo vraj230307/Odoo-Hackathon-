@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Traveloop — Budget Dashboard</title>
+  <link rel="stylesheet" href="../css/main.css" />
+  <link rel="stylesheet" href="../css/search.css" />
+  <link rel="stylesheet" href="../css/budget.css" />
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+
+<!-- ══════════════════════ HEADER ══════════════════════ -->
+<header class="page-header">
+  <a href="#" class="logo">Travel<span>oop</span></a>
+  <nav class="nav-links">
+    <a href="city_search.html">Cities</a>
+    <a href="activity_search.html">Activities</a>
+    <a href="budget.html" class="active">Budget</a>
+  </nav>
+</header>
+
+<!-- ══════════════════════ MAIN ══════════════════════ -->
+<main class="budget-page">
+
+  <h1 class="page-title">Budget Dashboard</h1>
+  <p class="page-subtitle">Track, estimate, and optimise your travel spending.</p>
+
+  <!-- Budget Alert (dynamic) -->
+  <div id="budgetAlertContainer"></div>
+
+  <!-- Summary Cards -->
+  <div class="summary-row">
+    <div class="summary-card accent-primary">
+      <div class="summary-label">Total Budget</div>
+      <div class="summary-value" id="totalBudget">₹0</div>
+      <div class="summary-sub">Set your limit below</div>
+      <span class="summary-icon">💰</span>
+    </div>
+    <div class="summary-card accent-success">
+      <div class="summary-label">Total Spent</div>
+      <div class="summary-value" id="totalSpent">₹0</div>
+      <div class="summary-sub" id="spentPct">0% of budget</div>
+      <span class="summary-icon">✅</span>
+    </div>
+    <div class="summary-card accent-warning">
+      <div class="summary-label">Remaining</div>
+      <div class="summary-value" id="totalRemaining">₹0</div>
+      <div class="summary-sub" id="daysRemaining">— days left</div>
+      <span class="summary-icon">⏳</span>
+    </div>
+    <div class="summary-card accent-danger">
+      <div class="summary-label">Daily Average</div>
+      <div class="summary-value" id="dailyAvg">₹0</div>
+      <div class="summary-sub" id="dailyAvgSub">based on expenses</div>
+      <span class="summary-icon">📅</span>
+    </div>
+  </div>
+
+  <!-- Day Cost Estimate Card (from API) -->
+  <div class="day-cost-card" id="estimateCard" style="display:none">
+    <div>
+      <div class="day-cost-label">Estimated Cost per Day</div>
+      <div class="day-cost-value" id="estimateCostVal">₹0</div>
+    </div>
+    <span class="day-cost-icon">✈️</span>
+  </div>
+
+  <!-- Main Layout -->
+  <div class="budget-layout">
+
+    <!-- LEFT: Charts + Expense List -->
+    <div style="display:flex;flex-direction:column;gap:24px;">
+
+      <!-- Charts Panel -->
+      <div class="budget-panel">
+        <div class="chart-tabs">
+          <button class="chart-tab active" data-chart="pie">Pie Chart</button>
+          <button class="chart-tab" data-chart="bar">Bar Chart</button>
+          <button class="chart-tab" data-chart="daily">Daily Trend</button>
+        </div>
+
+        <div class="chart-pane active" id="pane-pie">
+          <div class="chart-container">
+            <canvas id="pieChart"></canvas>
+          </div>
+        </div>
+        <div class="chart-pane" id="pane-bar">
+          <div class="chart-container">
+            <canvas id="barChart"></canvas>
+          </div>
+        </div>
+        <div class="chart-pane" id="pane-daily">
+          <div class="chart-container">
+            <canvas id="dailyChart"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- Category Breakdown -->
+      <div class="budget-panel">
+        <div class="panel-header">
+          <h2 class="panel-title"><span class="title-icon">📊</span>Category Breakdown</h2>
+        </div>
+        <div class="panel-body">
+          <div class="category-breakdown" id="categoryBreakdown">
+            <p style="color:var(--text-muted);font-size:13.5px;">No expenses logged yet.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Expense List -->
+      <div class="budget-panel">
+        <div class="panel-header">
+          <h2 class="panel-title"><span class="title-icon">🧾</span>Expense Log</h2>
+          <button class="panel-action" id="clearExpenses">Clear all</button>
+        </div>
+        <div class="panel-body" style="padding:0 24px 16px;">
+          <div class="expense-list" id="expenseList">
+            <p style="color:var(--text-muted);font-size:13.5px;padding:16px 0;">No expenses yet. Add one →</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- RIGHT: Budget Controls -->
+    <div style="display:flex;flex-direction:column;gap:24px;">
+
+      <!-- Budget Limit Panel -->
+      <div class="budget-panel">
+        <div class="panel-header">
+          <h2 class="panel-title"><span class="title-icon">🎯</span>Set Budget</h2>
+        </div>
+        <div class="panel-body">
+          <div class="budget-limit-wrap" style="margin-bottom:20px;">
+            <div class="budget-limit-label">
+              <span>Total Budget Limit</span>
+              <strong id="sliderDisplay">₹50,000</strong>
+            </div>
+            <input
+              type="range"
+              class="budget-slider"
+              id="budgetSlider"
+              min="1000" max="500000" step="1000" value="50000"
+            />
+            <div style="display:flex;justify-content:space-between;font-size:11.5px;color:var(--text-muted);margin-top:4px;">
+              <span>₹1,000</span><span>₹5,00,000</span>
+            </div>
+          </div>
+          <div class="form-row" style="margin-bottom:14px;">
+            <div class="form-group">
+              <label class="form-label" for="tripDays">Trip Duration</label>
+              <input type="number" class="form-input" id="tripDays" placeholder="Days" min="1" value="7" />
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="tripCurrency">Currency</label>
+              <select class="form-select" id="tripCurrency">
+                <option value="INR" selected>₹ INR</option>
+                <option value="USD">$ USD</option>
+                <option value="EUR">€ EUR</option>
+                <option value="GBP">£ GBP</option>
+                <option value="JPY">¥ JPY</option>
+              </select>
+            </div>
+          </div>
+          <button class="form-submit" id="saveBudgetBtn" style="margin-top:4px;">
+            💾 Save Budget Settings
+          </button>
+        </div>
+      </div>
+
+      <!-- Estimate from API -->
+      <div class="budget-panel">
+        <div class="panel-header">
+          <h2 class="panel-title"><span class="title-icon">🤖</span>AI Estimator</h2>
+        </div>
+        <div class="panel-body">
+          <div class="budget-form" id="estimateForm">
+            <div class="form-group">
+              <label class="form-label" for="estCity">Destination City</label>
+              <input type="text" class="form-input" id="estCity" placeholder="e.g. Tokyo" />
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label" for="estDays">Days</label>
+                <input type="number" class="form-input" id="estDays" placeholder="Days" min="1" value="5" />
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="estPeople">People</label>
+                <input type="number" class="form-input" id="estPeople" placeholder="#" min="1" value="2" />
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="estStyle">Travel Style</label>
+              <select class="form-select" id="estStyle">
+                <option value="budget">🎒 Budget</option>
+                <option value="mid" selected>🏨 Mid-range</option>
+                <option value="luxury">✨ Luxury</option>
+              </select>
+            </div>
+            <button class="form-submit" id="estimateBtn">
+              ✈️ Estimate Budget
+            </button>
+            <div id="estimateResult" style="display:none;"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Add Expense Panel -->
+      <div class="budget-panel">
+        <div class="panel-header">
+          <h2 class="panel-title"><span class="title-icon">➕</span>Log Expense</h2>
+        </div>
+        <div class="panel-body">
+          <div class="budget-form" id="expenseForm">
+            <div class="form-group">
+              <label class="form-label" for="expName">Description</label>
+              <input type="text" class="form-input" id="expName" placeholder="e.g. Lunch at local restaurant" />
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label" for="expAmount">Amount (₹)</label>
+                <input type="number" class="form-input" id="expAmount" placeholder="0.00" min="0" step="0.01" />
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="expCategory">Category</label>
+                <select class="form-select" id="expCategory">
+                  <option value="🍜 Food">🍜 Food</option>
+                  <option value="🏨 Accommodation">🏨 Accommodation</option>
+                  <option value="🚌 Transport">🚌 Transport</option>
+                  <option value="🎭 Activities">🎭 Activities</option>
+                  <option value="🛍️ Shopping">🛍️ Shopping</option>
+                  <option value="🏥 Health">🏥 Health</option>
+                  <option value="📡 Other">📡 Other</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="expDate">Date</label>
+              <input type="date" class="form-input" id="expDate" />
+            </div>
+            <button class="form-submit" id="addExpenseBtn">
+              ➕ Add Expense
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</main>
+
+<!-- Toast -->
+<div class="toast-container" id="toastContainer"></div>
+
+<script src="../js/budget.js"></script>
+</body>
+</html>
